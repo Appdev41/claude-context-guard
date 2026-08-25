@@ -20,7 +20,7 @@ context-guard install
 Or directly from GitHub:
 
 ```bash
-npm install -g github:YOUR_USERNAME/claude-context-guard
+npm install -g github:Appdev41/claude-context-guard
 context-guard install
 ```
 
