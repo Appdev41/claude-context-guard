@@ -1,0 +1,24 @@
+{
+  "name": "claude-context-guard",
+  "version": "1.0.0",
+  "description": "Context window monitor for Claude Code — visual alerts when usage exceeds threshold",
+  "type": "module",
+  "bin": {
+    "context-guard": "./bin/context-guard"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "context-window",
+    "monitor",
+    "hook"
+  ],
+  "license": "MIT"
+}

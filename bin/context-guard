@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+const command = process.argv[2];
+
+switch (command) {
+  case 'hook': {
+    const { runHook } = await import('../src/hook.mjs');
+    await runHook();
+    break;
+  }
+  case 'install': {
+    const { install } = await import('../src/install.mjs');
+    await install();
+    break;
+  }
+  case 'uninstall': {
+    const { uninstall } = await import('../src/install.mjs');
+    await uninstall();
+    break;
+  }
+  case 'status': {
+    const { showStatus } = await import('../src/hook.mjs');
+    await showStatus();
+    break;
+  }
+  case 'reset': {
+    const { resetSession } = await import('../src/hook.mjs');
+    await resetSession();
+    break;
+  }
+  default:
+    console.log(`claude-context-guard — Context window monitor for Claude Code
+
+Usage:
+  context-guard install     Install hook into Claude Code
+  context-guard uninstall   Remove hook from Claude Code
+  context-guard status      Show current session usage
+  context-guard reset       Reset session tracking
+  context-guard hook        (internal) Hook handler
+
+Environment:
+  CONTEXT_GUARD_THRESHOLD   Alert threshold in % (default: 40)
+  CONTEXT_GUARD_WINDOW      Context window size in tokens (default: 200000)
+`);
+    break;
+}
