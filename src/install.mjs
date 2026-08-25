@@ -25,12 +25,21 @@ function saveSettings(settings) {
   writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n');
 }
 
+const STATUSLINE_CONFIG = {
+  type: 'command',
+  command: 'context-guard statusline',
+};
+
 function isInstalled(settings) {
   const entries = settings.hooks?.PostToolUse;
   if (!Array.isArray(entries)) return false;
   return entries.some(e =>
     e.hooks?.some(h => h.command?.includes('context-guard'))
   );
+}
+
+function hasStatusLine(settings) {
+  return settings.statusLine?.command?.includes('context-guard');
 }
 
 export async function install() {
@@ -54,15 +63,26 @@ export async function install() {
     return;
   }
 
-  if (!settings.hooks) settings.hooks = {};
-  if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
-  settings.hooks.PostToolUse.push(HOOK_ENTRY);
+  if (!isInstalled(settings)) {
+    if (!settings.hooks) settings.hooks = {};
+    if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = [];
+    settings.hooks.PostToolUse.push(HOOK_ENTRY);
+    console.log('\x1b[32m✓ Hook PostToolUse installé\x1b[0m');
+  } else {
+    console.log('\x1b[32m✓ Hook PostToolUse déjà présent\x1b[0m');
+  }
+
+  if (!hasStatusLine(settings)) {
+    settings.statusLine = STATUSLINE_CONFIG;
+    console.log('\x1b[32m✓ Status line installée\x1b[0m');
+  } else {
+    console.log('\x1b[32m✓ Status line déjà présente\x1b[0m');
+  }
 
   saveSettings(settings);
 
   const threshold = parseInt(process.env.CONTEXT_GUARD_THRESHOLD || '40', 10);
-  console.log('\x1b[32m✓ Hook installé dans ~/.claude/settings.json\x1b[0m');
-  console.log(`  Alerte à ${threshold}%  |  Critique à 70%`);
+  console.log(`  Barre visible en permanence | Alerte à ${threshold}% | Critique à 70%`);
   console.log('  Retirer : context-guard uninstall');
 }
 
@@ -74,13 +94,18 @@ export async function uninstall() {
     return;
   }
 
-  settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(
-    e => !e.hooks?.some(h => h.command?.includes('context-guard'))
-  );
+  if (isInstalled(settings)) {
+    settings.hooks.PostToolUse = settings.hooks.PostToolUse.filter(
+      e => !e.hooks?.some(h => h.command?.includes('context-guard'))
+    );
+    if (!settings.hooks.PostToolUse.length) delete settings.hooks.PostToolUse;
+    if (settings.hooks && !Object.keys(settings.hooks).length) delete settings.hooks;
+  }
 
-  if (!settings.hooks.PostToolUse.length) delete settings.hooks.PostToolUse;
-  if (settings.hooks && !Object.keys(settings.hooks).length) delete settings.hooks;
+  if (hasStatusLine(settings)) {
+    delete settings.statusLine;
+  }
 
   saveSettings(settings);
-  console.log('\x1b[32m✓ Hook retiré de ~/.claude/settings.json\x1b[0m');
+  console.log('\x1b[32m✓ Hook et status line retirés de ~/.claude/settings.json\x1b[0m');
 }

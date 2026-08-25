@@ -28,6 +28,11 @@ switch (command) {
     await resetSession();
     break;
   }
+  case 'statusline': {
+    const { runStatusLine } = await import('../src/statusline.mjs');
+    await runStatusLine();
+    break;
+  }
   default:
     console.log(`claude-context-guard — Context window monitor for Claude Code
 
